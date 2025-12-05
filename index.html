@@ -1,413 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Choose your Favorite Meow! 🐱</title>
 <style>
-  :root{
-    --card-radius:18px;
-    --bg1:#faf5ff;
-    --bg2:#f3e8ff;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: linear-gradient(180deg,var(--bg1),var(--bg2));
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:28px 12px;
-  }
+body{
+  margin:0;
+  padding:24px 12px;
+  font-family:system-ui,sans-serif;
+  background:linear-gradient(180deg,#faf5ff,#f3e8ff);
+  display:flex;
+  justify-content:center;
+}
+.app{width:100%;max-width:420px}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font-size:20px}
+.collection-btn{
+  border:0;
+  background:#fff;
+  padding:8px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 6px 14px #0001;
+}
 
-  .container{
-    width:100%;
-    max-width:420px;
-    background:transparent;
-  }
+.deck{
+  position:relative;
+  width:100%;
+  height:460px;
+  margin:10px 0;
+}
 
-  header.appbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:12px;
-  }
+.card{
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 10px 22px #0002;
+  touch-action:none;
+  transition:transform .22s ease;
+}
 
-  h1{margin:0;font-size:20px}
-  .sub{font-size:13px;color:#6b7280;margin-top:4px}
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-  .collection-btn{
-    background:#fff;
-    border:0;
-    border-radius:999px;
-    padding:8px 12px;
-    font-weight:600;
-    box-shadow:0 6px 14px rgba(2,6,23,.08);
-    cursor:pointer;
-    display:inline-flex;
-    gap:8px;
-    align-items:center;
-  }
+.card:nth-child(2){transform:scale(.95) translateY(10px)}
+.card:nth-child(3){transform:scale(.9) translateY(20px)}
 
-  .deck{
-    position:relative;
-    width:100%;
-    height:520px;
-    margin:6px 0 12px;
-  }
+.badge{
+  position:absolute;
+  top:16px;
+  padding:6px 14px;
+  border:3px solid;
+  border-radius:10px;
+  font-weight:800;
+  opacity:0;
+  background:#fff9;
+}
+.like{right:16px;color:#059669;border-color:#059669}
+.nope{left:16px;color:#dc2626;border-color:#dc2626}
 
-  .card{
-    position:absolute;
-    width:100%;
-    height:100%;
-    border-radius:var(--card-radius);
-    overflow:hidden;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(15,23,42,.12);
-    user-select:none;
-    touch-action:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:transform .22s ease, opacity .22s ease;
-  }
+.controls{display:flex;gap:12px}
+button{
+  flex:1;
+  padding:12px;
+  border:0;
+  border-radius:12px;
+  background:#fff;
+  font-size:18px;
+  box-shadow:0 6px 14px #0001;
+  cursor:pointer;
+}
+.progress{
+  text-align:center;
+  opacity:.7;
+}
 
-  .card img{width:100%;height:100%;object-fit:cover;display:block}
+#collection{display:none}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  max-height:420px;
+  overflow:auto;
+}
+.item{
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 8px 18px #0001;
+}
+.item img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+}
+.remove{
+  position:absolute;
+  top:6px;
+  right:6px;
+  border:0;
+  background:#fff;
+  padding:4px 6px;
+  border-radius:8px;
+  cursor:pointer;
+  box-shadow:0 4px 10px #0001;
+}
 
-  /* stack visuals */
-  .card:nth-child(2){transform:scale(.96) translateY(10px);opacity:.94}
-  .card:nth-child(3){transform:scale(.92) translateY(22px);opacity:.88}
+.back{
+  margin-top:8px;
+}
 
-  .badge{
-    position:absolute;
-    top:18px;
-    padding:6px 14px;
-    font-weight:800;
-    border-radius:10px;
-    border:3px solid;
-    opacity:0;
-    background: rgba(255,255,255,0.7);
-    font-size:16px;
-    letter-spacing:0.04em;
-  }
-  .badge.like{ right:16px; color:#059669; border-color:#059669 }
-  .badge.nope{ left:16px; color:#dc2626; border-color:#dc2626 }
-
-  .controls{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:12px;
-  }
-
-  .btn{
-    flex:1;
-    padding:12px 10px;
-    background:#fff;
-    border:0;
-    border-radius:12px;
-    font-size:16px;
-    box-shadow:0 8px 18px rgba(2,6,23,.06);
-    cursor:pointer;
-  }
-
-  .progress{
-    text-align:center;
-    color:#6b7280;
-    margin-bottom:8px;
-    font-size:14px;
-  }
-
-  /* summary/collection view */
-  #collectionView{ display:none; }
-  .collection-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    max-height:420px;
-    overflow:auto;
-    padding-right:6px;
-  }
-
-  .col-card{
-    position:relative;
-    border-radius:12px;
-    overflow:hidden;
-    background:#fff;
-    box-shadow:0 10px 20px rgba(2,6,23,.06);
-  }
-  .col-card img{width:100%;height:160px;object-fit:cover;display:block}
-  .remove-btn{
-    position:absolute;
-    top:8px;
-    right:8px;
-    background:rgba(255,255,255,.95);
-    border:0;
-    border-radius:10px;
-    padding:6px;
-    cursor:pointer;
-    box-shadow:0 6px 14px rgba(2,6,23,.06);
-    font-weight:700;
-  }
-
-  .back-btn{
-    margin-top:8px;
-    background:#fff;
-    border:0;
-    padding:10px 14px;
-    border-radius:12px;
-    cursor:pointer;
-    box-shadow:0 6px 12px rgba(2,6,23,.06);
-  }
-
-  /* small screens spacing */
-  @media (max-width:420px){
-    .deck{height:460px}
-    .collection-grid .col-card img{height:140px}
-  }
+.emoji{
+  position:fixed;
+  font-size:28px;
+  animation:fall 2.5s linear forwards;
+  pointer-events:none;
+}
+@keyframes fall{
+  from{transform:translateY(-40px) scale(.4); opacity:0}
+  to{transform:translateY(120vh) scale(1); opacity:1}
+}
 </style>
 </head>
 <body>
-  <div class="container">
-    <header class="appbar">
-      <div>
-        <h1>Choose your Favorite Meow! 🐱</h1>
-        <div class="sub">Swipe right to like — left to skip</div>
-      </div>
-      <div>
-        <button id="openCollection" class="collection-btn">Collection 💞 (<span id="collectionCount">0</span>)</button>
-      </div>
-    </header>
 
-    <!-- Swipe View -->
-    <main id="swipeView">
-      <div class="progress" id="progressText">0 / 0</div>
+<div class="app">
 
-      <div class="deck" id="deck"></div>
+<header>
+<h1>Choose your Favorite Meow! 🐱</h1>
+<button class="collection-btn" id="open">Your cats 💞 (<span id="count">0</span>)</button>
+</header>
 
-      <div class="controls">
-        <button id="noBtn" class="btn">❌ Nope</button>
-        <button id="likeBtn" class="btn">🩷 Like</button>
-      </div>
-    </main>
+<div id="swipe">
 
-    <!-- Collection View -->
-    <section id="collectionView">
-      <h2>Your cats collection 💞</h2>
-      <p id="collectionInfo" class="sub">Scroll to view your favourites. Remove any with ❌</p>
-      <div class="collection-grid" id="collectionGrid"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button id="backBtn" class="back-btn">Back to swiping</button>
-        <button id="clearBtn" class="back-btn" style="background:#fee2e2">Clear all</button>
-      </div>
-    </section>
-  </div>
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck"></div>
+
+<div class="controls">
+<button id="nope">❌</button>
+<button id="like">🩷</button>
+</div>
+
+</div>
+
+<div id="collection">
+<h2>Your cats collection 💞</h2>
+<div class="grid" id="grid"></div>
+<button class="back" id="back">Back</button>
+</div>
+
+</div>
 
 <script>
-/* ===== App State ===== */
-const TOTAL = 18; // change if you want more/less
-let index = 0;
-let liked = []; // array of {id, url}
-const cats = Array.from({length:TOTAL}, (_,i)=>({
-  id: i,
-  url: `https://cataas.com/cat?${Date.now()}-${i}-${Math.random().toString(36).slice(2,8)}`
-}));
+const TOTAL=15;
+let index=0;
+let history=[];
+let liked=JSON.parse(localStorage.getItem("likedCats")||"[]");
 
-/* ===== DOM refs ===== */
-const deck = document.getElementById('deck');
-const progressText = document.getElementById('progressText');
-const collectionCount = document.getElementById('collectionCount');
-const openCollection = document.getElementById('openCollection');
-const swipeView = document.getElementById('swipeView');
-const collectionView = document.getElementById('collectionView');
-const collectionGrid = document.getElementById('collectionGrid');
-const likeBtn = document.getElementById('likeBtn');
-const noBtn = document.getElementById('noBtn');
-const backBtn = document.getElementById('backBtn');
-const clearBtn = document.getElementById('clearBtn');
+const countEl=document.getElementById("count");
+const cats=Array.from({length:TOTAL},(_,i)=>`https://cataas.com/cat?${Date.now()}-${i}`);
 
-/* ===== Helpers ===== */
-function updateCollectionButton(){
-  collectionCount.textContent = liked.length;
+const deck=document.getElementById("deck");
+const progress=document.getElementById("progress");
+const grid=document.getElementById("grid");
+
+updateCount();
+
+function save(){
+  localStorage.setItem("likedCats",JSON.stringify(liked));
+}
+function updateCount(){
+  countEl.textContent=liked.length;
 }
 
-function createCard(cat){
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.dataset.id = cat.id;
+function makeCard(src){
+  const c=document.createElement("div");
+  c.className="card";
 
-  const img = document.createElement('img');
-  img.src = cat.url;
-  img.alt = 'cute cat';
+  const img=document.createElement("img");
+  img.src=src;
 
-  const likeBadge = document.createElement('div');
-  likeBadge.className = 'badge like';
-  likeBadge.textContent = 'LIKE';
+  const l=document.createElement("div");
+  l.className="badge like";
+  l.textContent="LIKE";
 
-  const nopeBadge = document.createElement('div');
-  nopeBadge.className = 'badge nope';
-  nopeBadge.textContent = 'NOPE';
+  const n=document.createElement("div");
+  n.className="badge nope";
+  n.textContent="NOPE";
 
-  card.appendChild(img);
-  card.appendChild(likeBadge);
-  card.appendChild(nopeBadge);
-
-  return card;
+  c.append(img,l,n);
+  return c;
 }
 
-function renderDeck(){
-  deck.innerHTML = '';
-  // show up to 3 cards (top is last element appended)
-  cats.slice(index, index+3).reverse().forEach(c=>{
-    deck.appendChild(createCard(c));
-  });
-  progressText.textContent = `${Math.min(index+1, TOTAL)} / ${TOTAL}`;
-  attachDrag();
+function render(){
+  deck.innerHTML="";
+  cats.slice(index,index+3).reverse().forEach(src=>deck.append(makeCard(src)));
+  progress.textContent=`${Math.min(index+1,TOTAL)} / ${TOTAL}`;
+  drag();
 }
 
-/* ===== Drag / Swipe Logic ===== */
-function attachDrag(){
-  const top = deck.lastElementChild;
+function drag(){
+  const top=deck.lastElementChild;
   if(!top) return;
 
-  let startX = null;
-  let dx = 0;
+  let start=0, dx=0;
+  const like=top.querySelector(".like");
+  const nope=top.querySelector(".nope");
 
-  const likeBadge = top.querySelector('.like');
-  const nopeBadge = top.querySelector('.nope');
-
-  function start(e){
-    startX = (e.touches ? e.touches[0] : e).clientX;
-    top.style.transition = 'none';
+  const s=e=>{
+    start=(e.touches?e.touches[0]:e).clientX;
+    top.style.transition="none";
+  }
+  const m=e=>{
+    dx=(e.touches?e.touches[0]:e).clientX-start;
+    const rot=dx/15;
+    top.style.transform=`translateX(${dx}px) rotate(${rot}deg)`;
+    like.style.opacity=dx>0?Math.min(dx/80,1):0;
+    nope.style.opacity=dx<0?Math.min(-dx/80,1):0;
+  }
+  const e=()=>{
+    top.style.transition="transform .25s";
+    if(dx>120) swipe(true);
+    else if(dx<-120) swipe(false);
+    else top.style.transform="";
+    start=0;dx=0;
   }
 
-  function move(e){
-    if(startX === null) return;
-    const clientX = (e.touches ? e.touches[0] : e).clientX;
-    dx = clientX - startX;
-    const tilt = dx / 15;
-    top.style.transform = `translateX(${dx}px) rotate(${tilt}deg)`;
-
-    likeBadge.style.opacity = dx > 0 ? Math.min(dx / 80, 1) : 0;
-    nopeBadge.style.opacity = dx < 0 ? Math.min(-dx / 80, 1) : 0;
-  }
-
-  function end(){
-    if(startX === null) return;
-    top.style.transition = 'transform .25s ease-out';
-    if(dx > 120) doSwipe('right');
-    else if(dx < -120) doSwipe('left');
-    else top.style.transform = '';
-
-    startX = null;
-    dx = 0;
-  }
-
-  // Pointer events (desktop & many touch devices)
-  top.onpointerdown = start;
-  window.onpointermove = move;
-  window.onpointerup = end;
-
-  // Touch fallbacks (some mobiles)
-  top.ontouchstart = start;
-  window.ontouchmove = move;
-  window.ontouchend = end;
+  top.onpointerdown=s;
+  window.onpointermove=m;
+  window.onpointerup=e;
 }
 
-/* ===== Swipe action ===== */
-function doSwipe(dir){
-  const card = deck.lastElementChild;
-  if(!card) return;
-  card.style.transform = `translateX(${dir==='right'?1000:-1000}px) rotate(${dir==='right'?30:-30}deg)`;
-  // remove after animation
+function swipe(isLike){
+  const card=deck.lastElementChild;
+  card.style.transform=`translateX(${isLike?1000:-1000}px) rotate(${isLike?30:-30}deg)`;
   setTimeout(()=>{
-    if(dir === 'right'){
+    if(isLike){
       liked.push(cats[index]);
-      updateCollectionButton();
+      save(); updateCount();
     }
     index++;
-    if(index >= TOTAL){
-      // finished - show summary/collection automatically
+    if(index>=TOTAL){
+      celebrate();
       showCollection();
-    } else {
-      renderDeck();
-    }
-  }, 220);
+    }else render();
+  },200);
 }
 
-/* ===== Buttons ===== */
-likeBtn.addEventListener('click', ()=>doSwipe('right'));
-noBtn.addEventListener('click', ()=>doSwipe('left'));
-
-/* ===== Navigation: Views ===== */
-openCollection.addEventListener('click', showCollection);
-backBtn.addEventListener('click', ()=>{ showSwipe(); });
+function populate(){
+  grid.innerHTML='';
+  liked.forEach((src,i)=>{
+    const d=document.createElement("div");
+    d.className="item";
+    const img=document.createElement("img");
+    img.src=src;
+    const r=document.createElement("button");
+    r.className="remove";
+    r.textContent="❌";
+    r.onclick=()=>{
+      liked.splice(i,1);
+      save(); updateCount();
+      populate();
+    }
+    d.append(img,r);
+    grid.appendChild(d);
+  })
+}
 
 function showCollection(){
-  // render collection cards
-  renderCollection();
-  swipeView.style.display = 'none';
-  collectionView.style.display = 'block';
+  document.getElementById("swipe").style.display="none";
+  document.getElementById("collection").style.display="block";
+  populate();
 }
 
-function showSwipe(){
-  collectionView.style.display = 'none';
-  swipeView.style.display = 'block';
-}
+document.getElementById("open").onclick=showCollection;
+document.getElementById("back").onclick=()=>{
+  document.getElementById("collection").style.display="none";
+  document.getElementById("swipe").style.display="block";
+};
 
-/* ===== Collection rendering ===== */
-function renderCollection(){
-  collectionGrid.innerHTML = '';
-  if(liked.length === 0){
-    collectionGrid.innerHTML = '<div style="padding:18px;color:#6b7280">No favorites yet — swipe some cats! ❤️</div>';
-    return;
+document.getElementById("like").onclick=()=>swipe(true);
+document.getElementById("nope").onclick=()=>swipe(false);
+
+/* ---- Emoji celebration ---- */
+const emojis=["🩷","💖","💜"];
+function celebrate(){
+  for(let i=0;i<40;i++){
+    const e=document.createElement("div");
+    e.className="emoji";
+    e.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    e.style.left=Math.random()*100+"vw";
+    e.style.animationDelay=Math.random()*0.5+"s";
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),2500);
   }
-
-  liked.forEach((c, idx) => {
-    const card = document.createElement('div');
-    card.className = 'col-card';
-
-    const img = document.createElement('img');
-    img.src = c.url;
-    img.alt = 'liked cat';
-
-    const remove = document.createElement('button');
-    remove.className = 'remove-btn';
-    remove.innerText = '❌';
-    remove.title = 'Remove from collection';
-    remove.addEventListener('click', ()=>{
-      // remove this item
-      liked.splice(idx, 1);
-      updateCollectionButton();
-      renderCollection();
-    });
-
-    card.appendChild(img);
-    card.appendChild(remove);
-    collectionGrid.appendChild(card);
-  });
 }
 
-/* ===== Clear all collection ===== */
-clearBtn.addEventListener('click', ()=>{
-  if(!confirm('Clear all liked cats from your collection?')) return;
-  liked = [];
-  updateCollectionButton();
-  renderCollection();
-});
-
-/* ===== Initial render ===== */
-updateCollectionButton();
-renderDeck();
-
-/* Optional: make collection button show live count as likes happen */
-(function liveCountUpdater(){
-  // intercept push via proxies is overkill; instead updateCollectionButton() is called where needed.
-  // but also update button when user opens collection or when like happens.
-  // The like action above calls updateCollectionButton already.
-})();
+render();
 </script>
+
 </body>
 </html>
