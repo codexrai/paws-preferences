@@ -135,7 +135,7 @@
   <div class="deck" id="deck"></div>
 
   <div class="buttons">
-    <button id="noBtn">❌ </button>
+    <button id="noBtn"> ❌ </button>
     <button id="likeBtn"> 🩷 </button>
   </div>
 
@@ -260,4 +260,31 @@ function showSummary(){
   progress.style.display="none";
   summary.style.display="block";
 
-  likedCount.textContent = `Y
+    likedCount.textContent = `You liked ${liked.length} cats`;
+
+  liked.forEach(url=>{
+    const img=document.createElement("img");
+    img.src=url;
+    grid.appendChild(img);
+  });
+}
+
+function restart(){
+  index=0;
+  liked=[];
+  grid.innerHTML="";
+  deck.style.display="block";
+  document.querySelector(".buttons").style.display="flex";
+  progress.style.display="block";
+  summary.style.display="none";
+  render();
+}
+
+document.getElementById("likeBtn").onclick=()=>swipe("right");
+document.getElementById("noBtn").onclick=()=>swipe("left");
+
+render();
+</script>
+</body>
+</html>
+
