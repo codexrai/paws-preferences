@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paws & Preferences</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f3ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+#app{
+  width:90%;
+  max-width:360px;
+  text-align:center;
+}
+h1{margin-bottom:10px;}
+#card{
+  width:100%;
+  height:420px;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 8px 16px rgba(0,0,0,.15);
+  touch-action:none;
+}
+#card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.buttons{
+  margin-top:10px;
+  display:flex;
+  justify-content:space-between;
+}
+button{
+  padding:10px 18px;
+  font-size:16px;
+}
+#summary{
+  display:none;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.grid img{
+  width:100%;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+<h1>Paws & Preferences</h1>
+
+<div id="card">
+  <img id="catImg" />
+</div>
+
+<div class="buttons">
+  <button id="dislike">👎 Dislike</button>
+  <button id="like">👍 Like</button>
+</div>
+
+<p id="counter"></p>
+
+<div id="summary">
+  <h2>Summary</h2>
+  <p id="likedCount"></p>
+  <div class="grid" id="likedGrid"></div>
+  <button onclick="restart()">Restart</button>
+</div>
+
+</div>
+
+<script>
+const TOTAL = 15;
+let index = 0;
+let liked = [];
+
+const img = document.getElementById("catImg");
+const counter = document.getElementById("counter");
+const summary = document.getElementById("summary");
+const likedCount = document.getElementById("likedCount");
+const grid = document.getElementById("likedGrid");
+const card = document.getElementById("card");
+
+const cats = Array.from({length: TOTAL}, (_,i) =>
+  `https://cataas.com/cat?${Date.now()}-${i}`
+);
+
+showCat();
+
+// ----- Buttons -----
+document.getElementById("like").onclick = () => swipe("right");
+document.getElementById("dislike").onclick = () => swipe("left");
+
+// ----- Touch swipe -----
+let startX = null;
+
+card.addEventListener("touchstart", e=>{
+  startX = e.touches[0].clientX;
+}, {passive:true});
+
+card.addEventListener("touchend", e=>{
+  if(!startX) return;
+  let endX = e.changedTouches[0].clientX;
+  handleSwipe(endX - startX);
+  startX = null;
+});
+
+// ----- Mouse swipe (desktop) -----
+card.addEventListener("mousedown", e=> startX = e.clientX);
+card.addEventListener("mouseup", e=>{
+  if(!startX) return;
+  handleSwipe(e.clientX - startX);
+  startX = null;
+});
+
+function handleSwipe(delta){
+  if(delta > 120) swipe("right");
+  else if(delta < -120) swipe("left");
+}
+
+function swipe(dir){
+  if(index >= TOTAL) return;
+
+  if(dir === "right") liked.push(cats[index]);
+  index++;
+
+  if(index >= TOTAL) showSummary();
+  else showCat();
+}
+
+function showCat(){
+  img.src = cats[index];
+  counter.innerText = `${index+1} / ${TOTAL}`;
+}
+
+function showSummary(){
+  document.getElementById("card").style.display="none";
+  document.querySelector(".buttons").style.display="none";
+  counter.style.display="none";
+  summary.style.display="block";
+
+  likedCount.innerText = `You liked ${liked.length} cats`;
+
+  grid.innerHTML="";
+  liked.forEach(url=>{
+    const i=document.createElement("img");
+    i.src=url;
+    grid.appendChild(i);
+  });
+}
+
+function restart(){
+  index=0;
+  liked=[];
+  grid.innerHTML="";
+  summary.style.display="none";
+  document.getElementById("card").style.display="block";
+  document.querySelector(".buttons").style.display="flex";
+  counter.style.display="block";
+  showCat();
+}
+</script>
+</body>
+</html>
+
